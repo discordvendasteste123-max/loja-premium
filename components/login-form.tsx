@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
 const UserIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,6 +82,7 @@ function Input({
 }
 
 export function LoginForm() {
+  const { signIn, signUp } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -109,6 +111,12 @@ export function LoginForm() {
     setLoading(true);
     setError('');
 
+    if (!username.trim()) {
+      setError('Digite um usuário');
+      setLoading(false);
+      return;
+    }
+
     if (isSignUp && password !== confirmPassword) {
       setError('As senhas não coincidem');
       setLoading(false);
@@ -121,18 +129,26 @@ export function LoginForm() {
       return;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
     if (isSignUp) {
-      setError('');
-      setLoading(false);
-      setUsername('');
-      setPassword('');
-      setConfirmPassword('');
+      const { error } = await signUp(username, password);
+      if (error) {
+        setError(error.message);
+      } else {
+        alert('Conta criada! Verifique seu email.');
+        setUsername('');
+        setPassword('');
+        setConfirmPassword('');
+        setIsSignUp(false);
+      }
     } else {
-      setError('Credenciais inválidas');
-      setLoading(false);
+      const { error } = await signIn(username, password);
+      if (error) {
+        setError('Usuário ou senha incorretos');
+      } else {
+        window.location.href = '/dashboard';
+      }
     }
+    setLoading(false);
   };
 
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => 
