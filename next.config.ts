@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  trailingSlash: true,
+  poweredByHeader: false,
 };
 
 export default nextConfig;
