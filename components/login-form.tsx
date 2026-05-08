@@ -135,17 +135,14 @@ export function LoginForm() {
         if (result.error) {
           setError(result.error.message);
         } else {
-          setUsername('');
-          setPassword('');
-          setConfirmPassword('');
-          setIsSignUp(false);
+          window.location.href = '/store';
         }
       } else {
         const result = await signIn(username, password);
         if (result.error) {
           setError(result.error.message);
         } else {
-          window.location.href = '/dashboard';
+          window.location.href = '/store';
         }
       }
     } catch (err) {
@@ -175,12 +172,12 @@ export function LoginForm() {
       <div className="text-center mb-4">
         <div className="relative inline-block mb-3">
           <div 
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-baby-blue/20 to-baby-blue-light/10 flex items-center justify-center mx-auto"
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-primary/20 to-cyan-light/10 flex items-center justify-center mx-auto"
             style={{
               boxShadow: '0 0 20px rgba(137, 207, 240, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
             }}
           >
-            <svg className="w-5 h-5 text-baby-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-cyan-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
@@ -193,9 +190,9 @@ export function LoginForm() {
         </p>
       </div>
 
-      <div className="relative mb-4 rounded-xl p-0.5 bg-gradient-to-r from-baby-blue/5 via-baby-blue/10 to-baby-blue/5 border border-baby-blue/10">
+      <div className="relative mb-4 rounded-xl p-0.5 bg-gradient-to-r from-cyan-primary/5 via-cyan-primary/10 to-cyan-primary/5 border border-cyan-primary/10">
         <div 
-          className="absolute top-0.5 bottom-0.5 rounded-lg bg-gradient-to-r from-baby-blue/15 to-baby-blue/10 border border-baby-blue/20 transition-all duration-400 ease-out"
+          className="absolute top-0.5 bottom-0.5 rounded-lg bg-gradient-to-r from-cyan-primary/15 to-cyan-primary/10 border border-cyan-primary/20 transition-all duration-400 ease-out"
           style={{ 
             width: 'calc(50% - 1px)',
             left: isSignUp ? 'calc(50% + 1px)' : '1px',
@@ -280,7 +277,7 @@ export function LoginForm() {
           <div className="flex items-center justify-end">
             <button 
               type="button" 
-              className="text-xs text-baby-blue/80 hover:text-baby-blue transition-colors duration-200"
+              className="text-xs text-cyan-primary/80 hover:text-cyan-primary transition-colors duration-200"
             >
               Esqueceu?
             </button>
@@ -316,7 +313,7 @@ export function LoginForm() {
           {isSignUp ? 'Já tem conta?' : "Sem conta?"}{' '}
           <button 
             onClick={() => handleTabChange(isSignUp ? 'login' : 'signup')}
-            className="text-baby-blue hover:text-baby-blue-light transition-all duration-200 font-medium"
+            className="text-cyan-primary hover:text-cyan-light transition-all duration-200 font-medium"
           >
             {isSignUp ? 'Entrar' : 'Cadastre'}
           </button>

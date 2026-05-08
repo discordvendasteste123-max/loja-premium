@@ -1,156 +1,107 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/supabase/client';
-import { FallbackAuth, type FallbackUser } from '@/lib/fallback-auth';
 import type { User } from '@/types';
 
-function findFallbackUser(username: string): FallbackUser | undefined {
-  return FallbackAuth.getUsers().find(u => 
-    u.email.startsWith(`${username}@`)
-  );
+interface AuthUser {
+  id: string;
+  username: string;
 }
+
+const SESSION_KEY = 'nexus_session';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
-  const [fallbackPasswords, setFallbackPasswords] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    checkAndSetUser();
+    checkSession();
   }, []);
 
-  const checkAndSetUser = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        setUser(session.user);
-        setUsingFallback(false);
-      } else {
-        const stored = sessionStorage.getItem('nexus_fallback_session');
-        if (stored) {
-          const fallbackSession = JSON.parse(stored);
-          const foundUser = findFallbackUser(fallbackSession.username);
-          if (foundUser) {
-            setUser(foundUser);
-            setUsingFallback(true);
-          }
-        }
-      }
-    } catch {
-      const stored = sessionStorage.getItem('nexus_fallback_session');
-      if (stored) {
-        const fallbackSession = JSON.parse(stored);
-        const foundUser = findFallbackUser(fallbackSession.username);
-        if (foundUser) {
-          setUser(foundUser);
-          setUsingFallback(true);
-        }
-      }
-    } finally {
-      setLoading(false);
+  const checkSession = () => {
+    const stored = sessionStorage.getItem(SESSION_KEY);
+    if (stored) {
+      const session = JSON.parse(stored);
+      setUser({
+        id: session.id,
+        email: `${session.username}@nexus.local`,
+        user_metadata: { username: session.username }
+      });
     }
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setUsingFallback(false);
-    });
+    setLoading(false);
   };
 
   const signIn = useCallback(async (username: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: `${username}@placeholder.local`,
-        password,
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', username, password })
       });
 
-      if (data.user && !error) {
-        setUsingFallback(false);
-        return { data, error };
+      const data = await res.json();
+
+      if (!res.ok) {
+        return { data: null, error: { message: data.error } };
       }
 
-      const foundUser = findFallbackUser(username);
-      const storedPassword = fallbackPasswords[username];
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        id: data.user.id,
+        username: data.user.username,
+        token: data.token
+      }));
 
-      if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
-        sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
-        setUser(foundUser);
-        setUsingFallback(true);
-        return { data: { user: foundUser }, error: null };
-      }
+      setUser({
+        id: data.user.id,
+        email: `${data.user.username}@nexus.local`,
+        user_metadata: { username: data.user.username }
+      });
 
-      return { data: null, error: error || { message: 'Usuário ou senha incorretos' } };
-    } catch {
-      const foundUser = findFallbackUser(username);
-      const storedPassword = fallbackPasswords[username];
-
-      if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
-        sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
-        setUser(foundUser);
-        setUsingFallback(true);
-        return { data: { user: foundUser }, error: null };
-      }
-
-      return { data: null, error: { message: 'Usuário ou senha incorretos' } };
+      return { data: { user: data.user }, error: null };
+    } catch (error) {
+      return { data: null, error: { message: 'Erro de conexão' } };
     }
-  }, [fallbackPasswords]);
+  }, []);
 
   const signUp = useCallback(async (username: string, password: string) => {
-    const existingFallback = findFallbackUser(username);
-    if (existingFallback) {
-      return { data: null, error: { message: 'Usuário já cadastrado' } };
-    }
-
     try {
-      const { data, error } = await supabase.auth.signUp({ 
-        email: `${username}@placeholder.local`,
-        password,
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'register', username, password })
       });
 
-      if (data.user && !error) {
-        return { data, error };
-      }
-    } catch {
-    }
+      const data = await res.json();
 
-    const newUser = FallbackAuth.createUser(username, password);
-    const hashedPwd = FallbackAuth.hashPassword(password);
-    
-    const users = FallbackAuth.getUsers();
-    const userWithPassword: FallbackUser = { ...newUser, passwordHash: hashedPwd };
-    FallbackAuth.saveUsers([...users, userWithPassword]);
-    
-    setFallbackPasswords(prev => ({ ...prev, [username]: hashedPwd }));
-    
-    sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
-    setUser(newUser);
-    setUsingFallback(true);
-    
-    return { data: { user: newUser }, error: null };
+      if (!res.ok) {
+        return { data: null, error: { message: data.error } };
+      }
+
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        id: data.user.id,
+        username: data.user.username,
+        token: data.token
+      }));
+
+      setUser({
+        id: data.user.id,
+        email: `${data.user.username}@nexus.local`,
+        user_metadata: { username: data.user.username }
+      });
+
+      return { data: { user: data.user }, error: null };
+    } catch (error) {
+      return { data: null, error: { message: 'Erro de conexão' } };
+    }
   }, []);
 
   const signOut = useCallback(async () => {
-    if (usingFallback) {
-      sessionStorage.removeItem('nexus_fallback_session');
-      setUser(null);
-      setUsingFallback(false);
-      return { error: null };
-    }
+    sessionStorage.removeItem(SESSION_KEY);
+    setUser(null);
+    return { error: null };
+  }, []);
 
-    const { error } = await supabase.auth.signOut();
-    return { error };
-  }, [usingFallback]);
-
-  return { 
-    user, 
-    loading, 
-    signIn, 
-    signUp, 
-    signOut,
-    usingFallback 
-  };
+  return { user, loading, signIn, signUp, signOut };
 }
 
 export type useAuthReturn = ReturnType<typeof useAuth>;
