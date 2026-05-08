@@ -29,7 +29,7 @@ export default function LoginPage() {
           className="mt-8 text-center text-text-secondary/30 text-xs tracking-wide animate-fade-in-up"
           style={{ animationDelay: '0.3s' }}
         >
-          © 2026 Nexus. All rights reserved.
+          © 2026 Nexus. Todos os direitos reservados.
         </p>
       </div>
 

@@ -80,19 +80,6 @@ function Input({
   );
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`relative px-6 py-3 text-sm font-medium transition-all duration-300 rounded-xl ${
-        active ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
 export function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
@@ -123,13 +110,13 @@ export function LoginForm() {
     setError('');
 
     if (isSignUp && password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('As senhas não coincidem');
       setLoading(false);
       return;
     }
 
     if (isSignUp && password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError('A senha deve ter pelo menos 6 caracteres');
       setLoading(false);
       return;
     }
@@ -143,7 +130,7 @@ export function LoginForm() {
       setPassword('');
       setConfirmPassword('');
     } else {
-      setError('Invalid credentials');
+      setError('Credenciais inválidas');
       setLoading(false);
     }
   };
@@ -179,39 +166,53 @@ export function LoginForm() {
           </div>
         </div>
         <h1 className="text-2xl font-semibold text-text-primary mb-2 tracking-tight">
-          {isSignUp ? 'Create Account' : 'Welcome Back'}
+          {isSignUp ? 'Criar Conta' : 'Bem-vindo de Volta'}
         </h1>
         <p className="text-text-secondary text-sm">
-          {isSignUp ? 'Join us and start your journey' : 'Sign in to continue'}
+          {isSignUp ? 'Junte-se a nós e comece sua jornada' : 'Entre para continuar'}
         </p>
       </div>
 
-      <div className="relative mb-8 p-1 rounded-2xl bg-text-secondary/5">
+      <div className="relative mb-8 rounded-2xl p-1 bg-gradient-to-r from-baby-blue/5 via-baby-blue/10 to-baby-blue/5 border border-baby-blue/10">
         <div 
-          className="tab-indicator"
+          className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-baby-blue/15 to-baby-blue/10 border border-baby-blue/20 transition-all duration-400 ease-out"
           style={{ 
-            width: '50%',
-            left: isSignUp ? '50%' : '0%',
+            width: 'calc(50% - 2px)',
+            left: isSignUp ? 'calc(50% + 2px)' : '2px',
           }}
         />
         <div className="relative flex">
-          <TabButton active={!isSignUp} onClick={() => handleTabChange('login')}>
-            Sign In
-          </TabButton>
-          <TabButton active={isSignUp} onClick={() => handleTabChange('signup')}>
-            Sign Up
-          </TabButton>
+          <button
+            onClick={() => handleTabChange('login')}
+            className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 z-10 ${
+              !isSignUp 
+                ? 'text-text-primary' 
+                : 'text-text-secondary/60 hover:text-text-secondary'
+            }`}
+          >
+            Entrar
+          </button>
+          <button
+            onClick={() => handleTabChange('signup')}
+            className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 z-10 ${
+              isSignUp 
+                ? 'text-text-primary' 
+                : 'text-text-secondary/60 hover:text-text-secondary'
+            }`}
+          >
+            Cadastrar
+          </button>
         </div>
       </div>
 
       <form key={formKey} className="form-content space-y-5" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <label className="text-xs font-medium text-text-secondary/80 uppercase tracking-wider">
-            Username
+            Usuário
           </label>
           <Input
             type="text"
-            placeholder="Enter your username"
+            placeholder="Digite seu usuário"
             value={username}
             onChange={handleInputChange(setUsername)}
             icon={<UserIcon />}
@@ -220,11 +221,11 @@ export function LoginForm() {
 
         <div className="space-y-2">
           <label className="text-xs font-medium text-text-secondary/80 uppercase tracking-wider">
-            Password
+            Senha
           </label>
           <Input
             type="password"
-            placeholder="Enter your password"
+            placeholder="Digite sua senha"
             value={password}
             onChange={handleInputChange(setPassword)}
             icon={<LockIcon />}
@@ -240,11 +241,11 @@ export function LoginForm() {
             style={{ animationDelay: '0.1s' }}
           >
             <label className="text-xs font-medium text-text-secondary/80 uppercase tracking-wider">
-              Confirm Password
+              Confirmar Senha
             </label>
             <Input
               type="password"
-              placeholder="Confirm your password"
+              placeholder="Confirme sua senha"
               value={confirmPassword}
               onChange={handleInputChange(setConfirmPassword)}
               icon={<LockIcon />}
@@ -261,7 +262,7 @@ export function LoginForm() {
               type="button" 
               className="text-xs text-baby-blue/80 hover:text-baby-blue transition-colors duration-200"
             >
-              Forgot password?
+              Esqueceu a senha?
             </button>
           </div>
         )}
@@ -282,22 +283,22 @@ export function LoginForm() {
           {loading ? (
             <span className="flex items-center justify-center gap-3">
               <span className="loading-spinner" />
-              Processing...
+              Processando...
             </span>
           ) : (
-            isSignUp ? 'Create Account' : 'Sign In'
+            isSignUp ? 'Criar Conta' : 'Entrar'
           )}
         </button>
       </form>
 
       <div className="mt-8 pt-6 border-t border-text-secondary/5">
         <p className="text-center text-text-secondary/60 text-xs">
-          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          {isSignUp ? 'Já tem uma conta?' : "Não tem uma conta?"}{' '}
           <button 
             onClick={() => handleTabChange(isSignUp ? 'login' : 'signup')}
             className="text-baby-blue hover:text-baby-blue-light transition-all duration-200 font-medium"
           >
-            {isSignUp ? 'Sign in' : 'Create one'}
+            {isSignUp ? 'Entrar' : 'Cadastre-se'}
           </button>
         </p>
       </div>
