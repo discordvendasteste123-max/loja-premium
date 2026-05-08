@@ -69,37 +69,76 @@ export function useAuth() {
   };
 
   const signIn = useCallback(async (username: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: `${username}@placeholder.local`,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: `${username}@placeholder.local`,
+        password,
+      });
 
-    if (error) {
-      if (error.message.includes('429') || error.message.includes('Invalid')) {
-        const foundUser = findFallbackUser(username);
-        const storedPassword = fallbackPasswords[username];
-
-        if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
-          sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
-          setUser(foundUser);
-          setUsingFallback(true);
-          return { data: { user: foundUser }, error: null };
-        }
+      if (!error && data.user) {
+        return { data, error };
       }
-      return { data: null, error };
-    }
 
-    return { data, error };
+      const foundUser = findFallbackUser(username);
+      const storedPassword = fallbackPasswords[username];
+
+      if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
+        sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
+        setUser(foundUser);
+        setUsingFallback(true);
+        return { data: { user: foundUser }, error: null };
+      }
+
+      return { data: null, error: error || { message: 'Credenciais inválidas' } };
+    } catch (err: unknown) {
+      const foundUser = findFallbackUser(username);
+      const storedPassword = fallbackPasswords[username];
+
+      if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
+        sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
+        setUser(foundUser);
+        setUsingFallback(true);
+        return { data: { user: foundUser }, error: null };
+      }
+
+      return { data: null, error: { message: 'Credenciais inválidas' } };
+    }
   }, [fallbackPasswords]);
 
   const signUp = useCallback(async (username: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({ 
-      email: `${username}@placeholder.local`,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({ 
+        email: `${username}@placeholder.local`,
+        password,
+      });
 
-    if (error) {
-      if (error.message.includes('429') || error.message.includes('already')) {
+      if (!error && data.user) {
+        return { data, error };
+      }
+
+      const existing = findFallbackUser(username);
+      if (existing) {
+        return { data: null, error: { message: 'Usuário já cadastrado' } };
+      }
+
+      const newUser = FallbackAuth.createUser(username, password);
+      const hashedPwd = FallbackAuth.hashPassword(password);
+      
+      const users = FallbackAuth.getUsers();
+      const userWithPassword: FallbackUser = { ...newUser, passwordHash: hashedPwd };
+      FallbackAuth.saveUsers([...users, userWithPassword]);
+      
+      setFallbackPasswords(prev => ({ ...prev, [username]: hashedPwd }));
+      
+      sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
+      setUser(newUser);
+      setUsingFallback(true);
+      
+      return { data: { user: newUser }, error: null };
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      
+      if (errorMessage.includes('429') || errorMessage.includes('Too Many')) {
         const existing = findFallbackUser(username);
         if (existing) {
           return { data: null, error: { message: 'Usuário já cadastrado' } };
@@ -120,10 +159,9 @@ export function useAuth() {
         
         return { data: { user: newUser }, error: null };
       }
-      return { data: null, error };
+      
+      return { data: null, error: { message: errorMessage } };
     }
-
-    return { data, error };
   }, []);
 
   const signOut = useCallback(async () => {
