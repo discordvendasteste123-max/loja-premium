@@ -134,7 +134,7 @@ export function LoginForm() {
       if (error) {
         setError(error.message);
       } else {
-        alert('Conta criada! Verifique seu email.');
+        alert('Conta criada com sucesso!');
         setUsername('');
         setPassword('');
         setConfirmPassword('');
