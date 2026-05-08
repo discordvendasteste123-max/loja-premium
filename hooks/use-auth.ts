@@ -112,10 +112,6 @@ export function useAuth() {
       if (data.user && !error) {
         return { data, error };
       }
-
-      if (error && !error.message.includes('429') && !error.message.includes('400')) {
-        return { data: null, error };
-      }
     } catch {
     }
 
