@@ -56,9 +56,9 @@ function Input({
       </div>
       <input
         type={showPasswordToggle && isPasswordVisible ? 'text' : type}
-        className="glass-input w-full pl-12 pr-12 py-4 rounded-xl text-text-primary placeholder:text-text-secondary/40 text-sm transition-all duration-300"
+        className="glass-input w-full pl-10 pr-10 py-3 rounded-lg text-text-primary placeholder:text-text-secondary/40 text-xs transition-all duration-300"
         style={{
-          transform: focused ? 'translateY(-2px)' : 'translateY(0)',
+          transform: focused ? 'translateY(-1px)' : 'translateY(0)',
         }}
         placeholder={placeholder}
         value={value}
@@ -146,45 +146,45 @@ export function LoginForm() {
 
   return (
     <div 
-      className="glass-card rounded-3xl p-8 w-full max-w-md animate-fade-in-up form-container"
+      className="glass-card rounded-2xl p-5 w-full max-w-xs mx-auto animate-fade-in-up form-container"
       style={{ 
         animationDelay: '0.1s',
         transform: 'perspective(1000px) rotateX(0deg)',
       }}
     >
-      <div className="text-center mb-8">
-        <div className="relative inline-block mb-4">
+      <div className="text-center mb-4">
+        <div className="relative inline-block mb-3">
           <div 
-            className="w-16 h-16 rounded-2xl bg-gradient-to-br from-baby-blue/20 to-baby-blue-light/10 flex items-center justify-center mx-auto"
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-baby-blue/20 to-baby-blue-light/10 flex items-center justify-center mx-auto"
             style={{
-              boxShadow: '0 0 40px rgba(137, 207, 240, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 0 20px rgba(137, 207, 240, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
             }}
           >
-            <svg className="w-8 h-8 text-baby-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-5 h-5 text-baby-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
         </div>
-        <h1 className="text-2xl font-semibold text-text-primary mb-2 tracking-tight">
-          {isSignUp ? 'Criar Conta' : 'Bem-vindo de Volta'}
+        <h1 className="text-lg font-semibold text-text-primary mb-1">
+          {isSignUp ? 'Criar Conta' : 'Bem-vindo'}
         </h1>
-        <p className="text-text-secondary text-sm">
-          {isSignUp ? 'Junte-se a nós e comece sua jornada' : 'Entre para continuar'}
+        <p className="text-text-secondary text-xs">
+          {isSignUp ? 'Cadastre-se para continuar' : 'Entre para continuar'}
         </p>
       </div>
 
-      <div className="relative mb-8 rounded-2xl p-1 bg-gradient-to-r from-baby-blue/5 via-baby-blue/10 to-baby-blue/5 border border-baby-blue/10">
+      <div className="relative mb-4 rounded-xl p-0.5 bg-gradient-to-r from-baby-blue/5 via-baby-blue/10 to-baby-blue/5 border border-baby-blue/10">
         <div 
-          className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-baby-blue/15 to-baby-blue/10 border border-baby-blue/20 transition-all duration-400 ease-out"
+          className="absolute top-0.5 bottom-0.5 rounded-lg bg-gradient-to-r from-baby-blue/15 to-baby-blue/10 border border-baby-blue/20 transition-all duration-400 ease-out"
           style={{ 
-            width: 'calc(50% - 2px)',
-            left: isSignUp ? 'calc(50% + 2px)' : '2px',
+            width: 'calc(50% - 1px)',
+            left: isSignUp ? 'calc(50% + 1px)' : '1px',
           }}
         />
         <div className="relative flex">
           <button
             onClick={() => handleTabChange('login')}
-            className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 z-10 ${
+            className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-300 z-10 ${
               !isSignUp 
                 ? 'text-text-primary' 
                 : 'text-text-secondary/60 hover:text-text-secondary'
@@ -194,7 +194,7 @@ export function LoginForm() {
           </button>
           <button
             onClick={() => handleTabChange('signup')}
-            className={`flex-1 py-3 text-sm font-medium rounded-xl transition-all duration-300 z-10 ${
+            className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all duration-300 z-10 ${
               isSignUp 
                 ? 'text-text-primary' 
                 : 'text-text-secondary/60 hover:text-text-secondary'
@@ -205,27 +205,27 @@ export function LoginForm() {
         </div>
       </div>
 
-      <form key={formKey} className="form-content space-y-5" onSubmit={handleSubmit}>
-        <div className="space-y-2">
+      <form key={formKey} className="form-content space-y-3" onSubmit={handleSubmit}>
+        <div className="space-y-1">
           <label className="text-xs font-medium text-text-secondary/80 uppercase tracking-wider">
             Usuário
           </label>
           <Input
             type="text"
-            placeholder="Digite seu usuário"
+            placeholder="Seu usuário"
             value={username}
             onChange={handleInputChange(setUsername)}
             icon={<UserIcon />}
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1">
           <label className="text-xs font-medium text-text-secondary/80 uppercase tracking-wider">
             Senha
           </label>
           <Input
             type="password"
-            placeholder="Digite sua senha"
+            placeholder="Sua senha"
             value={password}
             onChange={handleInputChange(setPassword)}
             icon={<LockIcon />}
@@ -237,15 +237,15 @@ export function LoginForm() {
 
         {isSignUp && (
           <div 
-            className="space-y-2 animate-fade-in-up"
+            className="space-y-1 animate-fade-in-up"
             style={{ animationDelay: '0.1s' }}
           >
             <label className="text-xs font-medium text-text-secondary/80 uppercase tracking-wider">
-              Confirmar Senha
+              Confirmar
             </label>
             <Input
               type="password"
-              placeholder="Confirme sua senha"
+              placeholder="Confirme a senha"
               value={confirmPassword}
               onChange={handleInputChange(setConfirmPassword)}
               icon={<LockIcon />}
@@ -262,14 +262,14 @@ export function LoginForm() {
               type="button" 
               className="text-xs text-baby-blue/80 hover:text-baby-blue transition-colors duration-200"
             >
-              Esqueceu a senha?
+              Esqueceu?
             </button>
           </div>
         )}
 
         {error && (
           <div 
-            className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm animate-fade-in-up error-shake"
+            className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs animate-fade-in-up error-shake"
           >
             {error}
           </div>
@@ -278,12 +278,12 @@ export function LoginForm() {
         <button 
           type="submit" 
           disabled={loading}
-          className="btn-primary w-full py-4 rounded-xl text-sm font-semibold relative overflow-hidden transition-all duration-300 disabled:opacity-70"
+          className="btn-primary w-full py-2.5 rounded-lg text-xs font-semibold relative overflow-hidden transition-all duration-300 disabled:opacity-70"
         >
           {loading ? (
-            <span className="flex items-center justify-center gap-3">
+            <span className="flex items-center justify-center gap-2">
               <span className="loading-spinner" />
-              Processando...
+              ...
             </span>
           ) : (
             isSignUp ? 'Criar Conta' : 'Entrar'
@@ -291,14 +291,14 @@ export function LoginForm() {
         </button>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-text-secondary/5">
+      <div className="mt-4 pt-3 border-t border-text-secondary/5">
         <p className="text-center text-text-secondary/60 text-xs">
-          {isSignUp ? 'Já tem uma conta?' : "Não tem uma conta?"}{' '}
+          {isSignUp ? 'Já tem conta?' : "Sem conta?"}{' '}
           <button 
             onClick={() => handleTabChange(isSignUp ? 'login' : 'signup')}
             className="text-baby-blue hover:text-baby-blue-light transition-all duration-200 font-medium"
           >
-            {isSignUp ? 'Entrar' : 'Cadastre-se'}
+            {isSignUp ? 'Entrar' : 'Cadastre'}
           </button>
         </p>
       </div>
