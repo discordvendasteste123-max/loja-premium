@@ -129,25 +129,29 @@ export function LoginForm() {
       return;
     }
 
-    if (isSignUp) {
-      const { error } = await signUp(username, password);
-      if (error) {
-        setError(error.message);
+    try {
+      if (isSignUp) {
+        const result = await signUp(username, password);
+        if (result.error) {
+          setError(result.error.message);
+        } else {
+          setUsername('');
+          setPassword('');
+          setConfirmPassword('');
+          setIsSignUp(false);
+        }
       } else {
-        alert('Conta criada com sucesso!');
-        setUsername('');
-        setPassword('');
-        setConfirmPassword('');
-        setIsSignUp(false);
+        const result = await signIn(username, password);
+        if (result.error) {
+          setError(result.error.message);
+        } else {
+          window.location.href = '/dashboard';
+        }
       }
-    } else {
-      const { error } = await signIn(username, password);
-      if (error) {
-        setError('Usuário ou senha incorretos');
-      } else {
-        window.location.href = '/dashboard';
-      }
+    } catch (err) {
+      setError('Erro interno. Tente novamente.');
     }
+    
     setLoading(false);
   };
 

@@ -5,15 +5,6 @@ import { supabase } from '@/supabase/client';
 import { FallbackAuth, type FallbackUser } from '@/lib/fallback-auth';
 import type { User } from '@/types';
 
-function createFallbackUser(username: string): User {
-  const fallbackUser: FallbackUser = FallbackAuth.createUser(username, '');
-  return fallbackUser as User;
-}
-
-function getFallbackUsers(): FallbackUser[] {
-  return FallbackAuth.getUsers();
-}
-
 function findFallbackUser(username: string): FallbackUser | undefined {
   return FallbackAuth.getUsers().find(u => 
     u.email.startsWith(`${username}@`)
@@ -69,23 +60,63 @@ export function useAuth() {
   };
 
   const signIn = useCallback(async (username: string, password: string) => {
-    const foundUser = findFallbackUser(username);
-    const storedPassword = fallbackPasswords[username];
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: `${username}@placeholder.local`,
+        password,
+      });
 
-    if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
-      sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
-      setUser(foundUser);
-      setUsingFallback(true);
-      return { data: { user: foundUser }, error: null };
+      if (data.user && !error) {
+        setUsingFallback(false);
+        return { data, error };
+      }
+
+      const foundUser = findFallbackUser(username);
+      const storedPassword = fallbackPasswords[username];
+
+      if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
+        sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
+        setUser(foundUser);
+        setUsingFallback(true);
+        return { data: { user: foundUser }, error: null };
+      }
+
+      return { data: null, error: error || { message: 'Usuário ou senha incorretos' } };
+    } catch {
+      const foundUser = findFallbackUser(username);
+      const storedPassword = fallbackPasswords[username];
+
+      if (foundUser && storedPassword === FallbackAuth.hashPassword(password)) {
+        sessionStorage.setItem('nexus_fallback_session', JSON.stringify({ username }));
+        setUser(foundUser);
+        setUsingFallback(true);
+        return { data: { user: foundUser }, error: null };
+      }
+
+      return { data: null, error: { message: 'Usuário ou senha incorretos' } };
     }
-
-    return { data: null, error: { message: 'Usuário ou senha incorretos' } };
   }, [fallbackPasswords]);
 
   const signUp = useCallback(async (username: string, password: string) => {
-    const existing = findFallbackUser(username);
-    if (existing) {
+    const existingFallback = findFallbackUser(username);
+    if (existingFallback) {
       return { data: null, error: { message: 'Usuário já cadastrado' } };
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({ 
+        email: `${username}@placeholder.local`,
+        password,
+      });
+
+      if (data.user && !error) {
+        return { data, error };
+      }
+
+      if (error && !error.message.includes('429') && !error.message.includes('400')) {
+        return { data: null, error };
+      }
+    } catch {
     }
 
     const newUser = FallbackAuth.createUser(username, password);
