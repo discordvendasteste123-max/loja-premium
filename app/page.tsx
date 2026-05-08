@@ -73,9 +73,9 @@ function LoginForm() {
   return (
     <div className="glass-card rounded-3xl p-10 w-full max-w-md animate-fade-in-up">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-semibold text-text-primary mb-2 tracking-tight">
-          Welcome back
-        </h1>
+<h1 className="text-3xl font-semibold text-text-primary mb-2 tracking-tight">
+            Welcome back 👋
+          </h1>
         <p className="text-text-secondary text-sm">
           Enter your credentials to access your account
         </p>
