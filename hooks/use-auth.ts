@@ -22,16 +22,19 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (username: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: `${username}@placeholder.local`,
       password,
     });
     return { data, error };
   };
 
-  const signUp = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (username: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({ 
+      email: `${username}@placeholder.local`,
+      password,
+    });
     return { data, error };
   };
 
