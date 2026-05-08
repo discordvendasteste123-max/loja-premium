@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
 const EmailIcon = ({ className = '' }: { className?: string }) => (
   <svg className={`w-5 h-5 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,11 +30,7 @@ const GitHubIcon = () => (
   </svg>
 );
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  icon: React.ReactNode;
-}
-
-function Input({ icon, ...props }: InputProps) {
+function Input({ icon, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
   const [focused, setFocused] = useState(false);
   
   return (
@@ -54,6 +51,22 @@ function Input({ icon, ...props }: InputProps) {
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { signIn } = useAuth();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const { error } = await signIn(email, password);
+    
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="glass-card rounded-3xl p-10 w-full max-w-md animate-fade-in-up">
@@ -66,7 +79,13 @@ export function LoginForm() {
         </p>
       </div>
 
-      <form className="space-y-5">
+      {error && (
+        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          {error}
+        </div>
+      )}
+
+      <form className="space-y-5" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <label htmlFor="email" className="text-xs font-medium text-text-secondary uppercase tracking-wider">
             Email
@@ -77,6 +96,7 @@ export function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
+            required
             icon={<EmailIcon />}
           />
         </div>
@@ -91,6 +111,7 @@ export function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
+            required
             icon={<LockIcon />}
           />
         </div>
@@ -105,8 +126,12 @@ export function LoginForm() {
           </a>
         </div>
 
-        <button type="submit" className="btn-primary w-full py-3.5 rounded-xl text-base font-medium">
-          Sign in
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="btn-primary w-full py-3.5 rounded-xl text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
 
